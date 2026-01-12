@@ -23,7 +23,7 @@ _icon_path_abs = os.path.abspath(_icon_path_rel)
 _icon_for_streamlit = _icon_path_abs if os.path.exists(_icon_path_abs) else "🧡"
 
 st.set_page_config(
-    page_title="WSO2 AI Gateway",
+    page_title="WSO2 AI Gateway Test Application",
     page_icon=_icon_for_streamlit,
     layout="wide"
 )
@@ -242,7 +242,7 @@ if not application_keys:
 # Language selector (with fallback)
 # ------------------------------
 if hasattr(st, 'sidebar'):
-    lang = st.sidebar.selectbox("🌐 Language / Idioma", ["en", "es"], format_func=lambda l: {"en": "English", "es": "Español"}[l], key="lang_select", on_change=clear_last_response)
+    lang = st.sidebar.selectbox("🌐 Language / Idioma / Taal", ["en", "es", "nl"], format_func=lambda l: {"en": "English", "es": "Español", "nl": "Dutch"}[l], key="lang_select", on_change=clear_last_response)
     selected_app = st.sidebar.selectbox(
         t('select_application'),
         application_keys,
@@ -256,7 +256,12 @@ else:
 set_lang(lang)
 
 # Load prompts configuration según idioma (con fallback)
-prompts_file = "prompts_es.yaml" if lang == "es" and os.path.exists("prompts_es.yaml") else "prompts.yaml"
+if lang == "es" and os.path.exists("prompts_es.yaml"):
+    prompts_file = "prompts_es.yaml"
+elif lang == "nl" and os.path.exists("prompts_nl.yaml"):
+    prompts_file = "prompts_nl.yaml"
+else:
+    prompts_file = "prompts.yaml"
 try:
     with open(prompts_file, "r") as f:
         prompts_config = yaml.safe_load(f)

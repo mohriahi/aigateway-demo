@@ -1,6 +1,6 @@
 TRANSLATIONS = {
     'en': {
-        'title': "API Manager - AI Gateway",
+        'title': "API Manager - AI Gateway Demo",
         'select_provider': "Select the provider:",
         'select_prompt': "Select a prompt:",
         'ask_question': "Ask a question to {provider}",
@@ -30,7 +30,7 @@ TRANSLATIONS = {
         'token_count': "Prompt tokens: {count}",
     },
     'es': {
-        'title': "API Manager - AI Gateway",
+        'title': "API Manager - AI Gateway Demo",
         'select_provider': "Selecciona el proveedor:",
         'select_prompt': "Selecciona un prompt:",
         'ask_question': "Haz una pregunta a {provider}",
@@ -58,9 +58,38 @@ TRANSLATIONS = {
         'no_applications_available': "No hay aplicaciones configuradas o habilitadas.",
         'no_providers_for_app': "No hay proveedores disponibles para la aplicación seleccionada.",
         'token_count': "Prompt tokens: {count}",
+    },
+    'nl': {
+        'title': "API Manager - AI Gateway Demo",
+        'select_provider': "Selecteer de provider:",
+        'select_prompt': "Selecteer een prompt:",
+        'ask_question': "Stel een vraag aan {provider}",
+        'response_from': "Antwoord van {provider}",
+        'send': "Versturen",
+        'success_count': "Succesvolle oproepen naar {provider}: {count}",
+        'error_count': "Mislukte oproepen naar {provider}: {count}",
+        'select_and_ask': "Selecteer de provider en stel je vraag.",
+        'missing_fields': "De volgende velden ontbreken in de provider configuratie: {fields}",
+        'no_access_token': "Kon geen access token verkrijgen.",
+        'token_error': "Fout bij het verkrijgen van token. Status: {status}",
+        'unknown_error': "Onbekende fout.",
+        'api_request_error': "Fout bij het maken van API verzoek: {error}",
+        'blocked_url': "Antwoord geblokkeerd vanwege ongeldige of niet toegankelijke URL: {urls}",
+        'default_question': "Wie ben je?",
+        'env_config_help': "Zorg ervoor dat je .env bestand de vereiste credentials bevat. Zie .env.example als referentie.",
+        'empty_question_error': "Voer een vraag in voordat je verzendt.",
+        'question_too_long': "Vraag is te lang. Maximaal {max_length} tekens toegestaan.",
+        'tls_disabled_warning': "⚠️ SSL/TLS verificatie is UITGESCHAKELD. Verbindingen zijn NIET veilig!",
+        'tls_enabled_status': "🔒 SSL/TLS verificatie is INGESCHAKELD. Verbindingen zijn veilig.",
+        'tls_status_label': "Beveiligingsstatus",
+        'select_application': "Selecteer applicatie:",
+        'app_provider_success': "Succesvolle oproepen van {app} naar {provider}: {count}",
+        'app_provider_error': "Mislukte oproepen van {app} naar {provider}: {count}",
+        'no_applications_available': "Geen applicaties zijn geconfigureerd of ingeschakeld.",
+        'no_providers_for_app': "Geen providers beschikbaar voor de geselecteerde applicatie.",
+        'token_count': "Prompt tokens: {count}",
     }
 }
-
 
 _current_lang = 'en'
 

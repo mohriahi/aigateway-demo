@@ -232,7 +232,7 @@ def validate_provider_config(provider_name, provider_config, required_fields):
 def validate_application_config(application_name, application_config, required_fields):
     missing = [field for field in required_fields if field not in application_config or application_config[field] is None]
     if missing:
-        st.error(t('missing_fields', fields=", ".join(missing)))
+        st.error(t('missing_app_fields', fields=", ".join(missing), app=application_name))
         st.error(t('env_config_help'))
         st.stop()
 

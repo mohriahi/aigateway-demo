@@ -31,3 +31,4 @@ providers:
     MODEL: "gemini-2.5-flash"
     DESCRIPTION: "Google Gemini 2.5 Flash"
     ENABLED: true
+    API_FORMAT: gemini

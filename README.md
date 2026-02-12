@@ -1,6 +1,6 @@
-# WSO2 API Manager - AI Gateway
+# WSO2 AI Gateway - Showing Guardrails Capabilities
 
-This application is a Streamlit interface to interact with LLM models (such as OpenAI, Mistral, and Anthropic) through a WSO2 API Gateway, featuring OAuth2 authentication, multiple application management, predefined prompts, and provider selection capabilities.
+This application is a Streamlit interface to interact with LLM models (such as OpenAI, Mistral, and Anthropic) through a WSO2 API Gateway, featuring OAuth2 authentication, multiple application management, predefined prompts, and provider selection capabilities. It can be used to demonstrate WSO2 AI gateway guardrails capabilities as well as semantic caching support.
 
 ## Key Features
 
@@ -17,60 +17,26 @@ This application is a Streamlit interface to interact with LLM models (such as O
 - **Theme-aware UI**: Responsive design that adapts to light/dark themes
 
 ## Requirements
-- Python 3.8+
+- Python 3.11 / 3.12 / 3.13 - **Python 3.14 is not supported**
 - The libraries listed in `requirements.txt` (Streamlit, requests, PyYAML, etc.)
-
-## Prerequisites
-
-Before installing the application, you need to set up access to the WSO2 API Gateway:
-
-### WSO2 Developer Portal Setup
-
-1. **Access the WSO2 Developer Portal**
-   - Navigate to your WSO2 API Manager Developer Portal
-   - Log in with your developer account
-
-2. **Create a New Application**
-   - Go to "Applications" section
-   - Click "Add Application"
-   - Fill in the application details:
-     - **Name**: e.g., "LLM Gateway Client"
-     - **Per Token Quota**: Set according to your usage needs
-     - **Description**: "Application for accessing LLM APIs through WSO2 Gateway"
-   - Click "Add" to create the application
-
-3. **Subscribe to LLM APIs**
-   Subscribe your application to all available LLM APIs:
-   - **OpenAI API**: Subscribe to the OpenAI chat completions endpoint
-   - **Mistral AI API**: Subscribe to the Mistral chat completions endpoint
-   - **Anthropic API**: Subscribe to the Anthropic messages endpoint
-   - Any other LLM APIs available in your WSO2 instance
-
-4. **Generate Application Credentials**
-   - Go to your application's "Production Keys" tab
-   - Click "Generate Keys" to create OAuth2 credentials
-   - Copy the **Consumer Key** and **Consumer Secret**
-   - Note the **Token URL** (typically `https://your-wso2-server:9443/oauth2/token`)
-
-5. **Get API Endpoints**
-   - For each subscribed API, note the gateway endpoint URLs
-   - These are typically in the format: `https://your-wso2-server:8243/{api-context}/{version}`
 
 ## Installation
 
 1. Clone the repository or download the files.
+
 2. Create a virtual environment and install the dependencies:
    ```bash
    python -m venv venv
    source venv/bin/activate
    pip install -r requirements.txt
    ```
-3. Configure your environment:
-   - Copy `.env.example` to `.env` and fill in your WSO2 credentials
-   - Review and customize `config.yaml` for provider settings
-   - Review and customize `applications.yaml` for application management
-   - Optionally customize `prompts.yaml` for predefined test prompts
 
+3. Configure your environment:
+
+   1. Review and customize `applications.yaml` for application management
+   2. Copy `.env.example` to `.env` and fill in your WSO2 credentials
+   3. Review and customize `config.yaml` for provider settings
+   4. Optionally customize `prompts.yaml` for predefined test prompts
 
 
 ## Configuration
@@ -81,7 +47,7 @@ The application uses three main configuration files:
 Sensitive credentials are stored in a `.env` file that is not tracked by git. Supports both shared and application-specific credentials:
 
 ```env
-# Shared WSO2 Gateway Credentials (Required - fallback for all applications)
+# Shared WSO2 Gateway Credentials (Fallback for all applications if specific credentials are not available)
 WSO2_CONSUMER_KEY=your_shared_consumer_key
 WSO2_CONSUMER_SECRET=your_shared_consumer_secret
 WSO2_TOKEN_URL=https://your-wso2-server:9443/oauth2/token
@@ -128,7 +94,11 @@ providers:
     MODEL: "sonnet-4.0"
     DESCRIPTION: "Anthropic Claude - Helpful, harmless, and honest AI assistant"
     ENABLED: true
-    # USER_AGENT: "Custom-Anthropic-Client/1.0"  # Optional: provider-specific User-Agent override
+  GEMINI:
+    MODEL: "gemini-2.5-flash"
+    DESCRIPTION: "Google Gemini 2.5 Flash"
+    ENABLED: true
+    API_FORMAT: "gemini"
 ```
 
 ### 3. Applications Configuration (`applications.yaml`)
@@ -152,7 +122,7 @@ applications:
     name: "Mobile App"
     description: "Mobile application client"
     enabled: true
-    providers: ["OPENLLM", "MISTRAL"]
+    providers: ["OPENLLM", "GEMINI"]
 ```
 
 ### 4. Predefined Prompts (`prompts.yaml`)
@@ -182,41 +152,12 @@ prompts:
 
 ## Adding New Components
 
-### Adding a New Provider
-1. **Subscribe to the new LLM API** in your WSO2 Developer Portal application
-2. **Get the API endpoint** from the WSO2 Developer Portal
-3. **Add the chat completions URL** to `.env` following the `{PROVIDER_NAME}_CHAT_COMPLETIONS_URL` pattern
-4. **Add a new entry** under `providers:` in `config.yaml` with `MODEL`, `DESCRIPTION`, and `ENABLED` fields
-5. **Update application access** in `applications.yaml` to grant provider access to specific applications
-6. No code changes are needed: the app automatically detects the defined providers
-
-Example for adding a new "GEMINI" provider:
-1. Subscribe to Gemini API in WSO2 Developer Portal
-2. Add the endpoint URL to `.env`:
-   ```env
-   GEMINI_CHAT_COMPLETIONS_URL=https://your-wso2-server:8243/geminiapi/v1/chat/completions
-   ```
-3. Add the provider to `config.yaml`:
-   ```yaml
-   GEMINI:
-     MODEL: "gemini-pro"
-     DESCRIPTION: "Google Gemini Pro - Multimodal AI model"
-     ENABLED: true
-   ```
-4. Update your application in `applications.yaml` to grant access:
-   ```yaml
-   mobile:
-     name: "Mobile App"
-     description: "Mobile application"
-     enabled: true
-     providers: ["OPENLLM", "MISTRAL", "GEMINI"]  # Added GEMINI
-   ```
-
 ### Adding a New Application
 
 Follow these steps to add a new application to the demo:
 
 #### Step 1: Create WSO2 Application in Developer Portal
+
 1. Log in to your WSO2 Developer Portal
 2. Navigate to "Applications" and click "Add Application"
 3. Fill in the application details:
@@ -225,6 +166,7 @@ Follow these steps to add a new application to the demo:
 4. Click "Add" to create the application
 
 #### Step 2: Subscribe to LLM Provider APIs
+
 1. Go to your new application in the Developer Portal
 2. Subscribe to the LLM APIs you want this application to access:
    - For OpenAI access: Subscribe to the OpenAI API
@@ -233,12 +175,14 @@ Follow these steps to add a new application to the demo:
 3. This step is **required** - the application cannot access providers it hasn't subscribed to
 
 #### Step 3: Generate OAuth Credentials
+
 1. In your application, go to the "Production Keys" tab
 2. Click "Generate Keys" to create OAuth2 credentials
 3. Copy the **Consumer Key** and **Consumer Secret**
 4. Note the **Token URL** (typically `https://your-wso2-server:9443/oauth2/token`)
 
 #### Step 4: Add Configuration to applications.yaml
+
 Add your application to `applications.yaml` using a **lowercase key**:
 
 ```yaml
@@ -252,6 +196,7 @@ mobile:  # Application key (lowercase)
 **Note**: Choose a simple, lowercase key (e.g., `mobile`, `webapp`, `analytics`) that describes your application.
 
 #### Step 5: Add OAuth Credentials to .env
+
 If you want application-specific credentials (recommended for production), add them to `.env` using the **UPPERCASE** version of your application key:
 
 ```env
@@ -262,17 +207,64 @@ MOBILE_TOKEN_URL=https://your-wso2-server:9443/oauth2/token
 ```
 
 **Key Matching Rule**:
+
 - `applications.yaml` uses lowercase: `mobile`
 - `.env` uses uppercase: `MOBILE_CONSUMER_KEY`
 
 If you skip this step, the application will use the shared `WSO2_CONSUMER_KEY` and `WSO2_CONSUMER_SECRET` credentials.
 
 #### Step 6: Restart the Application
+
 ```bash
 streamlit run demo_ui.py
 ```
 
 Your new application will appear in the application selector dropdown.
+
+### Adding a New Provider
+
+1. **Subscribe to the new LLM API** in your WSO2 Developer Portal application
+2. **Get the API endpoint** from the WSO2 Developer Portal
+3. **Add the chat completions URL** to `.env` following the `{PROVIDER_NAME}_CHAT_COMPLETIONS_URL` pattern
+4. **Add a new entry** under `providers:` in `config.yaml` with `MODEL`, `DESCRIPTION`, and `ENABLED` fields
+5. **Set `API_FORMAT`** if the provider uses a non-OpenAI-compatible API (e.g., `API_FORMAT: gemini`). Providers that are OpenAI-compatible can omit this field — it defaults to `openai`
+6. **If the API format handler doesn't exist yet**, add a new handler class to `api_handlers.py` with `build_url`, `build_payload`, and `parse_response` static methods, and register it in the `_HANDLERS` dict
+7. **Update application access** in `applications.yaml` to grant provider access to specific applications
+8. No changes to `demo_ui.py` are needed for new providers or new API formats
+
+Example for adding a new "GEMINI" provider (non-OpenAI API format):
+1. Subscribe to Gemini API in WSO2 Developer Portal
+2. Add the endpoint URL to `.env`:
+   ```env
+   GEMINI_CHAT_COMPLETIONS_URL=https://your-wso2-server:8243/geminiapi/v1beta/models/{model}:generateContent
+   ```
+3. Add the provider to `config.yaml` with `API_FORMAT`:
+   ```yaml
+   GEMINI:
+     MODEL: "gemini-2.5-flash"
+     DESCRIPTION: "Google Gemini 2.5 Flash"
+     ENABLED: true
+     API_FORMAT: gemini   # Uses the Gemini handler in api_handlers.py
+   ```
+4. Update your application in `applications.yaml` to grant access:
+   ```yaml
+   mobile:
+     name: "Mobile App"
+     description: "Mobile application"
+     enabled: true
+     providers: ["OPENLLM", "MISTRAL", "GEMINI"]  # Added GEMINI
+   ```
+
+Example for adding an OpenAI-compatible provider (no `API_FORMAT` needed):
+```yaml
+MISTRAL:
+  MODEL: "mistral-tiny"
+  DESCRIPTION: "Mistral AI Tiny"
+  ENABLED: true
+  # API_FORMAT defaults to "openai" — no need to specify
+```
+
+
 
 ### Adding Predefined Prompts
 Add new entries to `prompts.yaml`:

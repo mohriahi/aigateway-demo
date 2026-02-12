@@ -148,3 +148,4 @@ start_frontend.sh
 # Python Cache
 __pycache__
 
+.claude/settings.local.json

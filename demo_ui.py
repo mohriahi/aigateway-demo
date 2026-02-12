@@ -5,8 +5,8 @@ import streamlit as st
 import json
 import yaml
 import os
-import re
 from dotenv import load_dotenv
+from api_handlers import get_handler
 import tiktoken
 
 # ------------------------------
@@ -236,95 +236,6 @@ def validate_application_config(application_name, application_config, required_f
         st.error(t('missing_app_fields', fields=", ".join(missing), app=application_name))
         st.error(t('env_config_help'))
         st.stop()
-
-def build_api_url(provider, url, model):
-    """
-    Build API URL based on provider type.
-    
-    Args:
-        provider: Provider name ('GEMINI', 'OPENAI', 'MISTRAL')
-        url: chat url
-        model: Model
-    
-    Returns:
-        str: api url
-    """
-    if provider.upper() == "GEMINI":
-        # Replace {model} placeholder if present
-        if "{model}" in url:
-            return url.replace("{model}", model)
-        # Replace existing model in /models/ if no placeholder provided
-        if "/models/" in url:
-            return re.sub(r'/models/[^/:]+', f'/models/{model}', url)
-        return url
-    return url
-
-def build_api_payload(provider, model, query):
-    """
-    Build API payload based on provider type.
-    
-    Args:
-        provider: Provider name (e.g., 'GEMINI', 'OPENAI', 'MISTRAL')
-        model: Model name
-        query: User's question/prompt
-    
-    Returns:
-        dict: Formatted payload for the API request
-    """
-    provider_upper = provider.upper()
-    
-    if provider_upper == "GEMINI":
-        # Gemini API format: contents array with role and parts
-        return {
-            "contents": [
-                {
-                    "role": "user",
-                    "parts": [
-                        {
-                            "text": query
-                        }
-                    ]
-                }
-            ]
-        }
-    else:
-        return {
-            "model": model,
-            "messages": [
-                {
-                    "role": "user",
-                    "content": query
-                }
-            ],
-            "temperature": 0.7,
-            "max_tokens": 2000
-        }
-
-def parse_api_response(provider, response_json):
-    """
-    Parse API response based on provider type.
-    
-    Args:
-        provider: Provider name ('GEMINI', 'OPENAI', 'MISTRAL')
-        response_json: JSON response from the API
-    
-    Returns:
-        str: Extracted response text
-    """
-    
-    if provider.upper() == "GEMINI":
-        # Gemini template: candidates[0].content.parts[0].text
-        if "candidates" in response_json and response_json["candidates"]:
-            candidate = response_json["candidates"][0]
-            if "content" in candidate and "parts" in candidate["content"]:
-                parts = candidate["content"]["parts"]
-                if parts and "text" in parts[0]:
-                    return parts[0]["text"]
-        return None
-    else:
-        if "choices" in response_json and response_json["choices"]:
-            return response_json["choices"][0]["message"]["content"]
-        return None
 
 
 # Get available applications
@@ -692,6 +603,7 @@ else:
     st.error("No providers available for this application")
     st.stop()
 provider_config = config["providers"][provider]
+api_handler = get_handler(provider_config.get("API_FORMAT"))
 
 # Provider configuration is now loaded dynamically
 CHAT_COMPLETIONS_URL = provider_config["CHAT_COMPLETIONS_URL"]
@@ -754,11 +666,9 @@ if st.button(t('send'), type="primary"):
             "User-Agent": user_agent
         }
         
-        # Build API URL with model included if needed (e.g., for Gemini)
-        api_url = build_api_url(provider, CHAT_COMPLETIONS_URL, model)
-        
-        # Build payload based on provider type
-        payload = build_api_payload(provider, model, user_question)
+        # Build API URL and payload via provider handler
+        api_url = api_handler.build_url(CHAT_COMPLETIONS_URL, model)
+        payload = api_handler.build_payload(model, user_question)
         payload_str = json.dumps(payload, ensure_ascii=False)
         print(f"[LOG] JSON payload sent to model API:\n{json.dumps(payload, indent=2, ensure_ascii=False)}")
         print(f"[LOG] Sending request to: {api_url}")
@@ -781,8 +691,8 @@ if st.button(t('send'), type="primary"):
                 result = api_response.json()
                 print(f"[LOG] API response JSON: {result}")
                 
-                # Parse response based on provider type
-                content = parse_api_response(provider, result)
+                # Parse response via provider handler
+                content = api_handler.parse_response(result)
                 
                 st.session_state[f"last_response_{selected_app}_{provider}"] = content or str(result)
             except Exception as ex:

@@ -27,3 +27,7 @@ providers:
     MODEL: "sonnet-4.0"
     DESCRIPTION: "Anthropic Claude - Sonnet 4.0"
     ENABLED: true
+  GEMINI:
+    MODEL: "gemini-2.5-flash"
+    DESCRIPTION: "Google Gemini 2.5 Flash"
+    ENABLED: true

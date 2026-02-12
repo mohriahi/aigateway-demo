@@ -27,7 +27,7 @@ applications:
     description: "Dev: All LLMs"
     enabled: true
     # List of providers this application can access
-    providers: ["MISTRAL", "OPENLLM"]
+    providers: ["MISTRAL", "OPENLLM"] # You can use "GEMINI" as they provide free quota
     # OAuth credentials are loaded from environment variables:
     # DEFAULT_APP_CONSUMER_KEY, DEFAULT_APP_CONSUMER_SECRET, DEFAULT_APP_TOKEN_URL
     # If not found, falls back to WSO2_CONSUMER_KEY, WSO2_CONSUMER_SECRET, WSO2_TOKEN_URL
